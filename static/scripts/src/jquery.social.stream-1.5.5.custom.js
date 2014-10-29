@@ -163,6 +163,10 @@ define( [
             twitterId: '',
             days: 10,
             limit: 50,
+            flimit: 50,
+            tlimit: 50,
+            ilimit: 50,
+            ylimit: 50,
             max: 'days',
             external: true,
             speed: 600,
@@ -182,7 +186,8 @@ define( [
             iconPath: 'images/dcsns-dark/',
             imagePath: 'images/dcsns-dark/',
             parallelRequestLimit: 10,
-            debug: false
+            debug: false,
+            ofunction: false
           };
 
           /** Save the element */
@@ -295,6 +300,11 @@ define( [
             } else{
               /** Set the local data */
               final_data = this.fixData( results );
+
+              if( (this.o.ofunction != false) && (typeof window[this.o.ofunction] == 'function') ){
+                final_data = window[this.o.ofunction]( final_data );
+              }
+
               this.data = {
                 'results': final_data
               };
@@ -499,7 +509,7 @@ define( [
          */
         getFeed: function( callback, type, id, path, o, obj, opt, f1, f2, intro, feed, fn ){
 
-          var stream = $( '.stream', obj ), list = [], d = '', px = 300, c = [], data, href, url, n = opt.limit, txt = [
+          var stream = $( '.stream', obj ), list = [], d = '', px = 300, c = [], data, href, url, n = opt.limit, nf = opt.flimit, nt = opt.tlimit, ni = opt.ilimit, ny = opt.ylimit, txt = [
           ], src;
           frl = 'https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=' + n + '&callback=?&q=';
 
@@ -507,7 +517,7 @@ define( [
 
             case 'facebook':
               var cp = id.split( '/' );
-              url = url = cp.length > 1 ? 'https://graph.facebook.com/' + cp[1] + '/photos?fields=id,link,from,name,picture,images,comments&limit=' + n : frl + encodeURIComponent( 'https://www.facebook.com/feeds/page.php?id=' + id + '&format=rss20' );
+              url = url = cp.length > 1 ? 'https://graph.facebook.com/' + cp[1] + '/photos?fields=id,link,from,name,picture,images,comments&limit=' + nf : frl + encodeURIComponent( 'https://www.facebook.com/feeds/page.php?id=' + id + '&format=rss20' );
               break;
 
             case 'twitter':
@@ -515,10 +525,10 @@ define( [
               var cp = id.split( '/' ), cq = id.split( '#' ), cu = o.url.split( '?' ), replies = o.replies == true ? '&exclude_replies=false' : '&exclude_replies=true';
               var param = '&include_entities=true&include_rts=' + o.retweets + replies;
               url1 = cu.length > 1 ? curl + '&' : curl + '?';
-              url = cp.length > 1 ? url1 + 'url=list&list_id=' + cp[1] + '&per_page=' + n + param : url1 + 'url=timeline&screen_name=' + id + '&count=' + n + param;
+              url = cp.length > 1 ? url1 + 'url=list&list_id=' + cp[1] + '&per_page=' + nt + param : url1 + 'url=timeline&screen_name=' + id + '&count=' + nt + param;
               if( cq.length > 1 ){
                 var rts = o.retweets == false ? '+exclude:retweets' : '';
-                url = url1 + 'url=search&q=' + encodeURIComponent( cq[1] ) + '&count=' + n;
+                url = url1 + 'url=search&q=' + encodeURIComponent( cq[1] ) + '&count=' + nt;
               }
               break;
 
@@ -531,7 +541,7 @@ define( [
 
             case 'youtube':
               var cp = id.split( '/' ), cq = id.split( '#' );
-              n = n > 50 ? 50 : n;
+              ny = ny > 50 ? 50 : ny;
               href = 'https://www.youtube.com/';
               href += cq.length > 1 ? 'results?search_query=' + encodeURIComponent( cq[1] ) : 'user/' + id;
               href = cp.length > 1 ? 'https://www.youtube.com/playlist?list=' + cp[1] : href;
@@ -539,7 +549,7 @@ define( [
               if( cp.length > 1 ){
                 url += 'api/playlists/' + cp[1] + '?v=2&orderby=published'
               } else{
-                url += cq.length > 1 ? 'api/videos?alt=rss&orderby=published&max-results=' + n + '&racy=include&q=' + encodeURIComponent( cq[1] ) : 'base/users/' + id + '/' + feed + '?alt=rss&v=2&orderby=published&client=ytapi-youtube-profile';
+                url += cq.length > 1 ? 'api/videos?alt=rss&orderby=published&max-results=' + ny + '&racy=include&q=' + encodeURIComponent( cq[1] ) : 'base/users/' + id + '/' + feed + '?alt=rss&v=2&orderby=published&client=ytapi-youtube-profile';
               }
               url = frl + encodeURIComponent( url );
               break;
@@ -628,7 +638,7 @@ define( [
                   location.href = "https://instagram.com/oauth/authorize/?client_id=" + o.clientId + "&redirect_uri=" + o.redirectUrl + "&response_type=token";
                 }
               }
-              url += '?access_token=' + o.accessToken + '&client_id=' + o.clientId + '&count=' + n + qs;
+              url += '?access_token=' + o.accessToken + '&client_id=' + o.clientId + '&count=' + ni + qs;
               break;
           }
           var dataType = type == 'twitter' ? 'json' : 'jsonp';
@@ -1383,8 +1393,13 @@ define( [
           imagePath: object.data( 'path' ) + '/images/',
           cache: true,
           limit: parseInt( object.data( 'limit' ) ),
+          flimit: parseInt( object.data( 'facebook_limit' ) ),
+          tlimit: parseInt( object.data( 'twitter_limit' ) ),
+          ilimit: parseInt( object.data( 'instagram_limit' ) ),
+          ylimit: parseInt( object.data( 'youtube_limit' ) ),
           max: 'limit',
-          remove: String( object.data( 'remove' ) )
+          remove: String( object.data( 'remove' ) ),
+          ofunction:  object.data( 'order_function' )
         } );
 
         // @todo undo see what this does later, maybe actually do this */

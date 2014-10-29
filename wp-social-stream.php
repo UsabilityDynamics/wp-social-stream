@@ -137,7 +137,7 @@ if (! class_exists('WP_Social_Stream') ) {
      */
     function social_stream_shortcode( $attrs ) {
       global $wp_social_stream_templates_printed;
-    
+
       $defaults = array(
         'requires' => plugins_url( '/wp-social-stream/static/scripts/src/wp-social-stream.js' ),
         'path' => plugins_url( '/wp-social-stream/static/' ),
@@ -146,6 +146,10 @@ if (! class_exists('WP_Social_Stream') ) {
         'rotate_direction' => 'up',
         'height' => '',
         'limit' => '50',
+        'facebook_limit' => '50',
+        'twitter_limit' => '50',
+        'instagram_limit' => '50',
+        'youtube_limit' => '50',
 
         'twitter_search_for' => '',
         'twitter_show_text' => 'text',
@@ -162,7 +166,12 @@ if (! class_exists('WP_Social_Stream') ) {
 
         'youtube_search_for' => '',
 
-        'facebook_search_for' => ''
+        'facebook_search_for' => '',
+
+        'title' => '',
+        'description' => '',
+        'template' => '',
+        'order_function' => ''
       );
       $this->data = shortcode_atts( $defaults, $attrs );
 
@@ -174,11 +183,13 @@ if (! class_exists('WP_Social_Stream') ) {
       echo $this->get_template_part( 'static/templates/social_shortcode.php' );
       if( !isset( $wp_social_stream_templates_printed ) ){
         echo $this->get_template_part( 'static/templates/social_item_list.php' );
+        echo $this->get_template_part( 'static/templates/social_item_list_home.php' );
         echo $this->get_template_part( 'static/templates/social_item_single_facebook.php' );
         echo $this->get_template_part( 'static/templates/social_item_single_instagram.php' );
         echo $this->get_template_part( 'static/templates/social_item_single_twitter.php' );
         echo $this->get_template_part( 'static/templates/social_item_single_youtube.php' );
         echo $this->get_template_part( 'static/templates/social_item_single.php' );
+        echo $this->get_template_part( 'static/templates/social_item_single_home.php' );
         $wp_social_stream_templates_printed = true;
       }
       $ret = ob_get_clean();
@@ -282,6 +293,12 @@ if (! class_exists('WP_Social_Stream') ) {
       $_data['rotate_direction'] = $data[$this->get_field_name( 'rotate_direction' )];
       $_data['height']   = $data[$this->get_field_name( 'height' )];
       $_data['limit']    = $data[$this->get_field_name( 'limit' )];
+      $_data['facebook_limit']    = $data[$this->get_field_name( 'facebook_limit' )];
+      $_data['twitter_limit']    = $data[$this->get_field_name( 'twitter_limit' )];
+      $_data['youtube_limit']    = $data[$this->get_field_name( 'youtube_limit' )];
+      $_data['instagram_limit']    = $data[$this->get_field_name( 'instagram_limit' )];
+
+
       $_data['moderate'] = current_user_can('manage_options')?'1':'0';
 
       $_data['twitter_search_for'] = $data[$this->get_field_name('twitter_search_for')];
@@ -295,6 +312,11 @@ if (! class_exists('WP_Social_Stream') ) {
       $_data['youtube_search_for'] = $data[$this->get_field_name('youtube_search_for')];
 
       $_data['facebook_search_for'] = $data[$this->get_field_name('facebook_search_for')];
+
+      $_data['title'] = $data[$this->get_field_name('title')];
+      $_data['description'] = $data[$this->get_field_name('description')];
+      $_data['description'] = $data[$this->get_field_name('description')];
+      $_data['order_function'] = $data[$this->get_field_name('order_function')];
 
       $_data['remove'] = $this->get_removed_items();
 
