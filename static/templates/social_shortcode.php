@@ -14,10 +14,12 @@ if ($data[ 'template' ]){
 ?>
 
 <div class="<?php echo $stream_class; ?>">
-  <div class="info-meta">
-    <div class="social-stream-title"><?php echo $data['title'] ?></div>
-    <div class="social-stream-description"><?php echo $data['description'] ?></div>
-  </div>
+  <?php if( !empty( $data[ 'title' ] ) || !empty( $data[ 'description' ] ) ) : ?>
+    <div class="info-meta">
+      <div class="social-stream-title"><?php echo $data[ 'title' ] ?></div>
+      <div class="social-stream-description"><?php echo $data[ 'description' ] ?></div>
+    </div>
+  <?php endif; ?>
   <div
     id="wp-social-stream-<?php echo rand(); ?>"
     class="wp-social-stream"
