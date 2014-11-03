@@ -171,7 +171,8 @@ if (! class_exists('WP_Social_Stream') ) {
         'title' => '',
         'description' => '',
         'template' => '',
-        'order_function' => ''
+        'order_function' => '',
+        'filter' => false
       );
       $this->data = shortcode_atts( $defaults, $attrs );
 
@@ -190,6 +191,9 @@ if (! class_exists('WP_Social_Stream') ) {
         echo $this->get_template_part( 'static/templates/social_item_single_youtube.php' );
         echo $this->get_template_part( 'static/templates/social_item_single.php' );
         echo $this->get_template_part( 'static/templates/social_item_single_home.php' );
+        echo $this->get_template_part( 'static/templates/social_item_filters.php' );
+        echo $this->get_template_part( 'static/templates/social_item_meta.php' );
+        echo $this->get_template_part( 'static/templates/social_item_meta_home.php' );
         $wp_social_stream_templates_printed = true;
       }
       $ret = ob_get_clean();
@@ -297,6 +301,8 @@ if (! class_exists('WP_Social_Stream') ) {
       $_data['twitter_limit']    = $data[$this->get_field_name( 'twitter_limit' )];
       $_data['youtube_limit']    = $data[$this->get_field_name( 'youtube_limit' )];
       $_data['instagram_limit']    = $data[$this->get_field_name( 'instagram_limit' )];
+
+      $_data['filter']    = $data[$this->get_field_name( 'filter' )];
 
 
       $_data['moderate'] = current_user_can('manage_options')?'1':'0';

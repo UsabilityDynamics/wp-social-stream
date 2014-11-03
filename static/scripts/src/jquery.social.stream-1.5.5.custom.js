@@ -187,8 +187,12 @@ define( [
             imagePath: 'images/dcsns-dark/',
             parallelRequestLimit: 10,
             debug: false,
-            ofunction: false
+            ofunction: false,
+            title: false,
+            description: false
           };
+
+          this.filters = [];
 
           /** Save the element */
           this.el = el;
@@ -210,13 +214,25 @@ define( [
           if( this.o.filter == true || this.o.controls == true ){
             var x = '<div class="dcsns-toolbar">';
             if( this.o.filter == true ){
+
+              var filters = [];
+
+              $.each( opt.feeds, function( k, v ){
+
+                if( v.id != '' ){
+                  filters.push( k );
+                }
+              } );
+
+              this.filters = filters;
+              /*
               x += '<ul id="dcsns-filter" class="option-set filter">';
               x += this.o.wall == true ? '<li><a href="#filter" data-group="dc-filter"  data-filter="*" class="iso-active">stream</a></li>' : '';
               var $f = $( '.filter', el );
               $.each( opt.feeds, function( k, v ){
                 x += v.id != '' ? '<li class="active f-' + k + '"><a href="#filter" rel="' + k + '" data-group="dc-filter" data-filter=".dcsns-' + k + '">' + k + '</a></li>' : '';
               } );
-              x += '</ul>';
+              x += '</ul>';*/
             }
             if( this.o.controls == true && opt.wall == false ){
               var play = this.o.rotate.delay <= 0 ? '' : '<li><a href="#" class="play"></a></li>';
@@ -306,7 +322,9 @@ define( [
               }
 
               this.data = {
-                'results': final_data
+                'results': final_data,
+                'filters': this.filters,
+                'meta': {'title': this.o.title, 'description': this.o.description}
               };
               this.doKnockout();
             }
@@ -319,6 +337,7 @@ define( [
          */
         doKnockout: function( data ){
           /** Create our viewModel */
+
           this.viewModel = ko.mapping.fromJS( this.data );
           /** Apply your bindings to our existing element */
           ko.applyBindings( this.viewModel, this.el );
@@ -441,8 +460,10 @@ define( [
         },
 
         addevents: function( obj, $a ){
+
           var self = this, speed = this.o.speed;
-          var $container = $( '.stream', obj ), filters = {};
+          var $container = $( '.stream-filter', obj ), filters = {};
+
           $( '.controls', obj ).delegate( 'a', 'click', function(){
             var x = $( this ).attr( 'class' );
             switch( x ){
@@ -464,8 +485,50 @@ define( [
             }
             return false;
           } );
-          $( '.filter', obj ).delegate( 'a', 'click', function(){
+
+          // Filtering the streams
+          $( obj ).on( 'click', '.filter', function( e ){
+
+            e.preventDefault();
+
+            var t = $( this );
+
+            var is_selected = false;
+
+            if( t.hasClass( t.data( 'sel' ) ) ){
+              is_selected = true;
+            }
+
+            var parent = t.parents( $container );
+
+            // Remove the classes from the other elements
+            $( '.filter', parent ).each( function(){
+              $( this ).removeClass( $( this ).data( 'sel' ) );
+            } );
+
+            if( is_selected ){
+
+              // Remove class from the clicked element
+              t.removeClass( t.data( 'sel' ) );
+
+              $( '.single-stream' ).show();
+
+            } else{
+
+              // Add class to the clicked element
+              t.addClass( t.data( 'sel' ) );
+
+              item = t.data( 'sel' ).substring( 4 );
+
+              $( '.single-stream' ).hide();
+
+              $( '.' + item + '-streams' ).show();
+
+            }
+
+            /*
             if( opt.wall == false ){
+
               var rel = $( this ).attr( 'rel' );
               if( $( this ).parent().hasClass( 'active' ) ){
                 $( '.dcsns-' + rel, $a ).slideUp().addClass( 'inactive' );
@@ -474,10 +537,14 @@ define( [
                 $( '.dcsns-' + rel, $a ).slideDown().removeClass( 'inactive' );
                 $( this ).parent().animate( {opacity: 1}, 400 );
               }
+
               $( this ).parent().toggleClass( 'active' );
             }
-            return false;
+
+            return false;*/
+
           } );
+
           if( this.o.external ){
             $a.delegate( 'a', 'click', function(){
               if( !$( this ).parent().hasClass( 'section-share' ) ){
@@ -1397,6 +1464,8 @@ define( [
           tlimit: parseInt( object.data( 'twitter_limit' ) ),
           ilimit: parseInt( object.data( 'instagram_limit' ) ),
           ylimit: parseInt( object.data( 'youtube_limit' ) ),
+          title: String( object.data( 'title' ) ),
+          description: String( object.data( 'description' ) ),
           max: 'limit',
           remove: String( object.data( 'remove' ) ),
           ofunction:  object.data( 'order_function' )
