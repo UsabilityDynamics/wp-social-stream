@@ -46,5 +46,5 @@ if( $data[ 'template' ] ){
   data-title="<?php echo $data[ 'title' ] ?>"
   data-description="<?php echo $data[ 'description' ] ?>"
   data-order_function="<?php echo $data[ 'order_function' ] ?>"
-  data-bind="template: { name: '<?php echo $template_name; ?>', data: $data }"></div>
+  data-bind="template: { name: '<?php echo $template_name; ?>', data: $data }">
 </div>
